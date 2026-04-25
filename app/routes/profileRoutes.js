@@ -6,6 +6,7 @@ const uploadImage=require('../utils/uploadImage')
 
 route.get('/',verifyToken,ProfileController.user)
 route.put('/update',verifyToken,ProfileController.updateProfile)
+route.post('/update/password',verifyToken,ProfileController.updatePassword)
 route.put('/image',verifyToken,uploadImage.single('profileImage'),ProfileController.updateProfileImage)
 
 module.exports=route

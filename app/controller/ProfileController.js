@@ -2,7 +2,7 @@ const Model = require("../model/AModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const cloudinary = require("../config/cloudinary");
-const fs=require('fs')
+const fs = require("fs");
 class ProfileController {
   async user(req, res) {
     try {
@@ -42,6 +42,39 @@ class ProfileController {
         success: true,
         message: "Profile updated successfully!",
         data: updatedUser,
+      });
+    } catch (err) {
+      return res.status(500).json({
+        success: false,
+        message: err.message,
+      });
+    }
+  }
+
+  async updatePassword(req, res) {
+    try {
+      const userId = req.user.id;
+      const { oldPassword, newPassword } = req.body;
+
+      const user = await Model.findById(userId);
+
+      const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+      if (!isMatch) {
+        return res.status(400).json({
+          message: "Old password incorrect",
+        });
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(newPassword, salt);
+
+      await user.save();
+
+      return res.json({
+        success: true,
+        message: "Password updated successfully",
+        user,
       });
     } catch (err) {
       return res.status(500).json({
